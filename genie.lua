@@ -38,6 +38,7 @@ project("Puzzles")
   buildoptions_cpp {"-std=c++14" }
 	includedirs{"include" }
 	files {
+    "include/**.h",
 	  "src/**.cpp",
 	}		
   excludes {
@@ -45,7 +46,7 @@ project("Puzzles")
     "src/example.cpp"
   }
 	configuration "windows"
-	  defines {"WIN32"}
+	  defines {"WIN32", "_CRT_SECURE_NO_WARNINGS"}
 
 	configuration "macosx"
 	  defines {"__apple__"}

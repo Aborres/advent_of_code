@@ -39,7 +39,7 @@ namespace Y18 {
 
       void computeRecord() {
       
-        const uint32 num_cicles = dates.size();
+        const uint32 num_cicles = (uint32)dates.size();
 
         for (uint32 i = 0; i < num_cicles; i += 2) {
 
@@ -55,7 +55,7 @@ namespace Y18 {
       void computeMaxAsleepTime() {
         asleep_time = 0;
 
-        const uint32 num_cicles = dates.size();
+        const uint32 num_cicles = (uint32)dates.size();
         for (uint32 i = 0; i < num_cicles; i += 2) {
           asleep_time += dates[i + 1].min - dates[i].min;
         }
