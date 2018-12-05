@@ -106,9 +106,8 @@ namespace Y18 {
         }
       }
 
-      std::vector<uint32> results;
+      uint32 min = const_count + 1000;
 
-      const uint32 count_polymers = (uint32)polymers.size();
       for (auto& polymer : polymers) {
 
         count = const_count;
@@ -134,17 +133,13 @@ namespace Y18 {
         }
 
         ComputeReaction(input, count);
-        results.push_back((uint32)strlen((char*)input));
-      }
-      
-      uint32 min = const_count + 1000;
-      const uint32 count_results = (uint32)results.size();
-      for (uint32 i = 0; i < count_results; ++i) {
-        if (results[i] < min) {
-          min = results[i];
+
+        const uint32 len = (uint32)strlen((char*)input);
+        if (len < min) {
+          min = len;
         }
       }
-
+      
       LOG("The smallest count was: %d", min);
 
       delete[] input;
