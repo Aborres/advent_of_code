@@ -24,7 +24,7 @@ namespace Y18 {
     void puzzle() {
 
       const uint32 count = COUNT_ARR(input);
-      const uint32 len = strlen(input[0]);
+      const uint32 len = (uint32)strlen(input[0]);
 
       std::vector<Counter> valid_strings;
 
@@ -62,7 +62,7 @@ namespace Y18 {
       const uint32 checksum_l = COUNT_ARR(checksum);
       memset(checksum, 0, sizeof(uint32) * checksum_l);
 
-      const uint32 num_strings = valid_strings.size();
+      const uint32 num_strings = (uint32)valid_strings.size();
       for (uint32 i = 0; i < num_strings; ++i) {
         Counter* c = &valid_strings[i];
         

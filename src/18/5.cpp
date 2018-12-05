@@ -59,11 +59,12 @@ namespace Y18 {
     static void ComputeReaction(uint8* input, uint32 count) {
 
       bool done = false;
+      uint32 last_init = 0;
       while (!done) {
 
         done = true;
 
-        for (uint32 i = 0; i < count; ++i) {
+        for (uint32 i = last_init; i < count; ++i) {
           const uint8 curr = input[i];
           const uint8 next = input[i + 1];
           
@@ -78,8 +79,6 @@ namespace Y18 {
 
       input[count] = '\0';
     }
-
-    static const char* test = "dabAcCaCBAcCcaDA";
 
     void puzzle() {
 
@@ -116,17 +115,19 @@ namespace Y18 {
         memcpy(input, const_input, count);
         bool done = false;
 
+        uint32 last_init = 0;
         while (!done) {
 
           done = true;
 
-          for (uint32 i = 0; i < count; ++i) {
+          for (uint32 i = last_init; i < count; ++i) {
             const uint8 curr = input[i];
             
             if (IsPolymere(curr, polymer)) {
               DeleteFrom(input, i, 1, count);
               done = false;
               --count;
+              last_init = i;
               break;
             }
           }
