@@ -148,6 +148,7 @@ namespace Y18 {
       LOG("The smallest count was: %d", min);
 
       delete[] input;
+      delete[] const_input;
     }
   }
 }
