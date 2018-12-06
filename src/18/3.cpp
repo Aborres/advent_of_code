@@ -13,13 +13,6 @@
 namespace Y18 {
   namespace D3 {
 
-    template<class T>
-    struct vec2 {
-      T x, y;
-    };
-
-    typedef vec2<int32> vec2i;
-
 //Simple version...?
 #if 1
 
@@ -149,11 +142,7 @@ namespace Y18 {
       return false;
     }
 
-    //This is a bit of an overkill, I did the exercise thinking on number
-    //of intersections, rather than inches of intersection.
-    //I could have used the buffer (cloth) directly for this, 
-    //I am leaving it as it is because it gives me the second exercise for free. 
-    //Also, I was expecting the second part to be a:
+    //This is terribly over-engineered. I was expecting the second part to be a:
     //reorganise the squares in the cloth so they fit...
     void puzzle() {
 

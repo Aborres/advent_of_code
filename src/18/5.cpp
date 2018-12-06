@@ -43,7 +43,7 @@ namespace Y18 {
       return false;
     }
 
-    static bool IsPolymere(uint8 curr, uint8 p) {
+    static bool IsPolymer(uint8 curr, uint8 p) {
       const bool curr_c = IsCapital(curr);
 
       if ((curr_c && (curr == p)) || (!curr_c && ((curr - 32) == p))) {
@@ -122,7 +122,7 @@ namespace Y18 {
           for (uint32 i = last_init; i < count; ++i) {
             const uint8 curr = input[i];
             
-            if (IsPolymere(curr, polymer)) {
+            if (IsPolymer(curr, polymer)) {
               DeleteFrom(input, i, 1, count);
               done = false;
               --count;
