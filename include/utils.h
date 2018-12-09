@@ -5,6 +5,7 @@
 
 #include <stdint.h>
 #include <stdio.h>
+#include <assert.h>
 
 typedef int8_t  int8;
 typedef int16_t int16;
@@ -29,11 +30,12 @@ struct vec3 {
 typedef vec2<int32> vec2i;
 typedef vec3<int32> vec3i;
 
-
 #define UNUSED(O) (void)O
 
 #define COUNT_ARR(B) (sizeof(B) / sizeof(B[0]))
 
 #define LOG(F, ...) printf(F"\n", __VA_ARGS__)
+
+#define ASSERT(C, ...) assert(C, __VA_ARGS__)
 
 #endif //ADVENT_OF_CODE_UTILS

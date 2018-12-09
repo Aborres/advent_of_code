@@ -8,13 +8,15 @@
 #include <18/5.h>
 #include <18/6.h>
 #include <18/7.h>
+#include <18/8.h>
+#include <18/9.h>
 
 int main(int argc, char** argv) {
 
   UNUSED(argc);
   UNUSED(argv);
 
-  Y18::D7::puzzle();
+  Y18::D9::puzzle();
 
   return 0;
 }
