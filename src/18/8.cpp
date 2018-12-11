@@ -2,143 +2,85 @@
 
 #include <18/8.h>
 
-#include <utils.h>
-
-#include <string.h>
-
 #include <vector>
 
 namespace Y18 {
   namespace D8 {
 
-    class RingBuffer {
-    public:
-      RingBuffer(uint32 r) : data(nullptr), buff_size(0), num_elem(0), reserve_size(r)  {
-        buff_size = reserve_size;
-        num_elem = 0;
-        data = new uint32[buff_size];
-        memset(data, 0, buff_size * sizeof(uint32));
+    struct Node {
+      std::vector<Node*> children;
+      std::vector<uint32> metadata;
+
+      Node() : children(), metadata() {}
+    };
+
+    static Node* GenerateGraph(const uint32* buff, std::vector<Node*>* pool,
+                               uint32& it, uint32& metadata) {
+      Node* n = new Node();
+      pool->push_back(n);
+
+      const uint32 num_child = buff[it];
+      ++it;
+      const uint32 num_metadata = buff[it];
+      ++it;
+      for (uint32 i = 0; i < num_child; ++i) {
+        Node* c = GenerateGraph(buff, pool, it, metadata);
+        n->children.push_back(c);
       }
-
-      ~RingBuffer() {
-        delete[] data;
+      
+      const uint32 fit = it + num_metadata;
+      for (uint32 i = it; i < fit; ++i) {
+        const uint32 m = buff[i];
+        n->metadata.push_back(m);
+        metadata += m;
       }
+      it += num_metadata;
 
-      uint32 insert(int32 pos, uint32 o) {
-        const uint32 size = this->size();
+      return n;
+    }
 
-        checkResize(size + 1);
+    static uint32 ComputeMetadata(Node* root) {
+      uint32 count = 0;
 
-        fixIT(pos);
+      const std::vector<Node*>& children = root->children;
+      const uint32 num_children = (uint32)children.size();
 
-        memcpy(data + pos + 1, data + pos, sizeof(uint32) * (size - pos));
-        data[pos] = o;
-        ++num_elem;
+      const std::vector<uint32>& metadata = root->metadata;
+      const uint32 num_metadata = (uint32)metadata.size();
 
-        return pos;
-      }
-
-      void remove(int32& pos) {
-        fixIT(pos);
-        memcpy(data + pos, data + pos + 1, sizeof(uint32) * (size() - pos));
-        --num_elem;
-      }
-
-      uint32 size() const {
-        return num_elem;
-      }
-
-      uint32 buffSize() const {
-        return buff_size;
-      }
-
-      void checkResize(uint32 new_size) {
-        if (new_size > buffSize()) {
-
-          buff_size = new_size + reserve_size;
-
-          uint32* tmp = new uint32[buff_size];
-          memcpy(tmp, data, sizeof(uint32) * size());
-
-          delete[] data;
-          data = tmp;
+      if (num_children == 0) {
+        for (uint32 i = 0; i < num_metadata; ++i) {
+          count += metadata[i];
+        }
+      } else {
+        for (uint32 i = 0; i < num_metadata; ++i) {
+          const uint32 m = metadata[i] - 1;
+          if (m < num_children)
+            count += ComputeMetadata(children[m]);
         }
       }
 
-      uint32& operator[](int32 it) {
-        fixIT(it);
-        return data[it];
-      }
-
-      void fixIT(int32& it) {
-        const int32 size = (int32)this->size();
-        if (it < 0) {
-          it = size + it;
-        } else if (it > size) {
-          it -= size;
-        } 
-      }
-
-    private:
-      uint32* data;
-      uint32 buff_size;
-      uint32 num_elem;
-      uint32 reserve_size;
-    };
-
-    static const char* test[] = {
-      "9 players; last marble is worth 25 points",    //high score is 32 
-      "10 players; last marble is worth 1618 points", //high score is 8317
-      "13 players; last marble is worth 7999 points", //high score is 146373
-      "17 players; last marble is worth 1104 points", //high score is 2764
-      "21 players; last marble is worth 6111 points", //high score is 54718
-      "30 players; last marble is worth 5807 points", //high score is 37305
-    };
+      return count;
+    }
 
     void puzzle() {
-      UNUSED(test);
 
-      uint32 num_players = 0;
-      uint32 last_marble = 0;
-      sscanf(input, "%d players; last marble is worth %d points", &num_players, &last_marble);
+      std::vector<Node*> pool;
+      
+      uint32 it = 0;
+      uint32 metadata = 0;
+      Node* root = GenerateGraph(input, &pool, it, metadata);
 
-      RingBuffer buffer(100);
+      LOG("The first part is: %u", metadata);
 
-      uint64* player_scores = new uint64[num_players];
-      memset(player_scores, 0, sizeof(uint64) * num_players);
+      metadata = ComputeMetadata(root);
 
-      uint32 curr_player = 0;
-      int32 curr_pos = buffer.insert(0, 0);
-      for (uint32 i = 1; i < last_marble; ++i) {
+      LOG("The second part is: %u", metadata);
 
-        if (!(i % 23)) {
-
-          player_scores[curr_player] += i;
-
-          curr_pos -= 7;
-
-          player_scores[curr_player] += buffer[curr_pos];
-          buffer.remove(curr_pos);
-
-        } else {
-          curr_pos = buffer.insert(curr_pos + 2, i);
-        }
-
-        ++curr_player;
-        curr_player %= num_players;
+      const uint32 count_nodes = (uint32)pool.size();
+      for (uint32 i = 0; i < count_nodes; ++i) {
+        delete pool[i];
       }
-
-      uint64 max_points = 0;
-      for (uint32 i = 0; i < num_players; ++i) {
-        if (player_scores[i] > max_points) {
-          max_points = player_scores[i];
-          curr_player = i;
-        }
-      }
-
-      LOG("The Max score was: %llu by player: %u", max_points, curr_player);
-
-      delete[] player_scores;
     }
   }
 }
