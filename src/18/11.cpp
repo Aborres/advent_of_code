@@ -18,14 +18,24 @@ namespace Y18 {
 
     static int32 GetFuel(int32* buff, int32 x, int32 y, uint32 limit, uint32 w) {
       int32 p = 0;
-      const int32 f_y1 = y + limit;
-      const int32 f_x1 = x + limit;
-      for (int32 y1 = y; y1 < f_y1; ++y1) {
-        for (int32 x1 = x; x1 < f_x1; ++x1) {
-          const uint32 it = x1 + (y1 * w);
-          p += buff[it];
-        }
+
+      const int32 x1 = x + limit;
+      const int32 y1 = y + limit;
+      
+      int32 y0 = y;
+      do {
+        const uint32 it = x1 + (y0 * w);
+        p += buff[it];
+        ++y0;
+      } while (y0 <= y1);
+
+      int32 x0 = x;
+      while(x0 < x1) {
+        const uint32 it = x0 + (y1 * w);
+        p += buff[it];
+        ++x0; 
       }
+
       return p;
     }
 
@@ -47,7 +57,10 @@ namespace Y18 {
       for (int32 y = 0; y < limit - 3; ++y) {
         for (int32 x = 0; x < limit - 3; ++x) {
 
-          const int32 p = GetFuel(buff, x, y, 3, limit);
+          int32 p = 0;
+          for (uint32 i = 0; i < 3; ++i) {
+            p += GetFuel(buff, x, y, i, limit);
+          }
 
           if (p > max_fuel) {
             max_fuel = p;
@@ -65,16 +78,18 @@ namespace Y18 {
       for (int32 y = 0; y < limit; ++y) {
         for (int32 x = 0; x < limit; ++x) {
 
+          int32 p = 0;
+
           const int32 end = limit - std::max(x, y);
           for (int32 i = 0; i < end; ++i) {
 
-            const int32 p = GetFuel(buff, x, y, i, limit);
+            p += GetFuel(buff, x, y, i, limit);
 
             if (p > max_fuel) {
               max_fuel = p;
               cell.x = x + 1;
               cell.y = y + 1;
-              size = i;
+              size = i + 1;
             }
           }
         }
