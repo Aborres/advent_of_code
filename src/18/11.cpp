@@ -16,7 +16,18 @@ namespace Y18 {
       return res - 5;
     }
 
-#define INPUT input  
+    static int32 GetFuel(int32* buff, int32 x, int32 y, uint32 limit, uint32 w) {
+      int32 p = 0;
+      const int32 f_y1 = y + limit;
+      const int32 f_x1 = x + limit;
+      for (int32 y1 = y; y1 < f_y1; ++y1) {
+        for (int32 x1 = x; x1 < f_x1; ++x1) {
+          const uint32 it = x1 + (y1 * w);
+          p += buff[it];
+        }
+      }
+      return p;
+    }
 
     void puzzle() {
 
@@ -29,23 +40,14 @@ namespace Y18 {
         for (uint32 x = 1; x <= limit; ++x) {
           const uint32 x1 = x - 1;
           const uint32 y1 = y - 1;
-          buff[x1 + (y1 * limit)] = ComputeCellFuel(x, y, INPUT);
+          buff[x1 + (y1 * limit)] = ComputeCellFuel(x, y, input);
         }
       }
 
       for (int32 y = 0; y < limit - 3; ++y) {
         for (int32 x = 0; x < limit - 3; ++x) {
 
-          int32 p = 0;
-
-          const int32 f_y1 = y + 3;
-          const int32 f_x1 = x + 3;
-          for (int32 y1 = y; y1 < f_y1; ++y1) {
-            for (int32 x1 = x; x1 < f_x1; ++x1) {
-              const uint32 it = x1 + (y1 * limit);
-              p += buff[it];
-            }
-          }
+          const int32 p = GetFuel(buff, x, y, 3, limit);
 
           if (p > max_fuel) {
             max_fuel = p;
@@ -65,16 +67,8 @@ namespace Y18 {
 
           const int32 end = limit - std::max(x, y);
           for (int32 i = 0; i < end; ++i) {
-            int32 p = 0;
 
-            const int32 f_y1 = y + i;
-            const int32 f_x1 = x + i;
-            for (int32 y1 = y; y1 < f_y1; ++y1) {
-              for (int32 x1 = x; x1 < f_x1; ++x1) {
-                const uint32 it = x1 + (y1 * limit);
-                p += buff[it];
-              }
-            }
+            const int32 p = GetFuel(buff, x, y, i, limit);
 
             if (p > max_fuel) {
               max_fuel = p;
