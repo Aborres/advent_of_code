@@ -10,6 +10,7 @@
 #include <18/7.h>
 #include <18/8.h>
 #include <18/9.h>
+#include <18/10.h>
 #include <18/11.h>
 #include <18/12.h>
 
@@ -18,7 +19,7 @@ int main(int argc, char** argv) {
   UNUSED(argc);
   UNUSED(argv);
 
-  Y18::D12::puzzle();
+  Y18::D10::puzzle();
 
   return 0;
 }

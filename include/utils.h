@@ -20,7 +20,26 @@ typedef uint64_t uint64;
 template<class T>
 struct vec2 {
   T x, y;
+
+  vec2& operator+=(const vec2& o) {
+    x += o.x; 
+    y += o.y;
+    return *this;
+  }
+
+  vec2 operator+(const vec2& r) const {
+    return vec2{ x + r.x, y + r.y };
+  }
+
+  vec2 operator-(const vec2& r) const {
+    return vec2{ x - r.x, y - r.y };
+  }
+
+  bool operator==(const vec2& o) const {
+    return (x == o.x) && (y == o.y);
+  }
 };
+
 
 template<class T>
 struct vec3 {
