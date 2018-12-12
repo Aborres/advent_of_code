@@ -1,6 +1,6 @@
 //jnaranjo Advent of code 18
 
-#include <18/6.h>
+#include <18/06.h>
 
 #include <set>
 #include <algorithm>
