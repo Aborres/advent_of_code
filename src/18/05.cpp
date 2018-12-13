@@ -11,22 +11,6 @@
 namespace Y18 {
   namespace D5 {
 
-    static void ReadInput(const char* path, char** out) {
-      FILE* f = fopen(path, "rb");
-
-      if (f) {
-        fseek(f, 0, SEEK_END);
-        const uint32 size = (uint32)ftell(f);
-        fseek(f, 0, SEEK_SET);
-
-        *out = new char[size + 1];
-        fread(*out, size, 1, f);
-        (*out)[size] = '\0';
-
-        fclose(f);
-      }
-    }
-
     static bool IsCapital(uint8 c) {
       return c < 91; //[;
     }
@@ -83,7 +67,7 @@ namespace Y18 {
     void puzzle() {
 
       uint8* const_input = nullptr;
-      ReadInput("assets/input/5.txt", (char**)&const_input);
+      ReadInput("assets/input/18/5.txt", (char**)&const_input);
 
       const uint32 const_count = (uint32)strlen((char*)const_input);
 

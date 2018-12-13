@@ -109,7 +109,7 @@ namespace Y18 {
 
       LOG("The biggest area was: %u", total_counter);
 
-      size_biggest_area /= valid_points.size();
+      size_biggest_area /= (uint32)valid_points.size();
       LOG("Second Part: The biggest area was: %u", size_biggest_area);
 
       delete[] area;

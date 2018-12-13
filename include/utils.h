@@ -55,6 +55,26 @@ typedef vec3<int32> vec3i;
 
 #define LOG(F, ...) printf(F"\n", __VA_ARGS__)
 
-#define ASSERT(C, ...) assert(C, __VA_ARGS__)
+#define ASSERT(C, ...) assert(C && __VA_ARGS__)
+
+#define INLINE inline
+
+INLINE bool ReadInput(const char* path, char** out) {
+  FILE* f = fopen(path, "rb");
+
+  if (f) {
+    fseek(f, 0, SEEK_END);
+    const uint32 size = (uint32)ftell(f);
+    fseek(f, 0, SEEK_SET);
+
+    *out = new char[size + 1];
+    fread(*out, size, 1, f);
+    (*out)[size] = '\0';
+
+    fclose(f);
+    return true;
+  }
+  return false;
+}
 
 #endif //ADVENT_OF_CODE_UTILS

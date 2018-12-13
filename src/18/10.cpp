@@ -33,8 +33,8 @@ namespace Y18 {
 
       const int32 big = 9999999;
       uint32 min_distance = big;
-      vec2i c_min;
-      vec2i c_max;
+      vec2i c_min = {0, 0};
+      vec2i c_max = {0, 0};
       uint32 time = 0;
 
       uint32 it = 0;

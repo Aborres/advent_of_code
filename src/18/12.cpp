@@ -38,7 +38,7 @@ namespace Y18 {
                                    Mask* masks, uint32 count_masks,
                                    uint32 num_generations, uint32 padding, uint32* avg) {
       
-      uint32 prev = 0;
+      uint64 prev = 0;
 
       for (uint64 i = 0; i < num_generations; ++i) {
         for (uint32 p = 2; p < buff_size - 2; ++p) {
@@ -55,7 +55,7 @@ namespace Y18 {
         }
 
         const uint64 curr = GetSum(buff, (int32)buff_size, (int32)padding);
-        *avg = curr - prev;
+        *avg = (uint32)(curr - prev);
         prev = curr;
 
         memcpy(buff, next_gen, buff_size);
