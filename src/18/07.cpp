@@ -1,6 +1,6 @@
 //jnaranjo Advent of code 18
 
-#include <18/7.h>
+#include <18/07.h>
 
 #include <utils.h>
 #include <vector>

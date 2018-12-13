@@ -1,6 +1,6 @@
 //jnaranjo Advent of code 18
 
-#include <18/3.h>
+#include <18/03.h>
 
 #include <utils.h>
 
