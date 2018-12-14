@@ -2,46 +2,40 @@
 
 #include <18/14.h>
 
-#include <utils.h>
-
-#include <vector>
-
 namespace Y18 {
   namespace D14 {
 
     static void BreakInsert(uint32 n, RingBuffer* buff) {
 
-      RingBuffer temp;
-      while (n > 0) {
-        temp.insertFront(n % 10);
-        n /= 10;
+      if (n == 0) {
+        buff->insertEnd(n);
+        return;
       }
 
-      const uint32 size = temp.size();
-      for (uint32 i = 0; i < size; ++i) {
-        buff->insertEnd(temp[i]);
+      uint32 c = 0;
+      while (n > 0) {
+        buff->insert(buff->size() - c, n % 10);
+        n /= 10;
+        ++c;
       }
     }
 
-    const static uint32 input = 825401;
-    const static uint32 tests = 2018;
-
-#define INPUT tests
-
     void puzzle() {
 
-      RingBuffer buffer;
+      RingBuffer buffer(30000000); //Reserve big chunk
       BreakInsert(37, &buffer);
+
+      RingBuffer comp;
+      BreakInsert(input, &comp);
+      const uint32 count_comp = comp.size();
       
       int32 elf1 = 0;
       int32 elf2 = 1;
-      while(buffer.size() < INPUT + 10) {
+      const uint32 limit = input + 10;
+      
+      bool found = false; //second part
 
-        //const uint32 count = buffer.size();
-        //for (uint32 i = 0; i < count; ++i) {
-        //  printf("%d", buffer[i]);
-        //}
-        //printf("\n");
+      while(buffer.size() < limit || !found) {
 
         const uint32 elf1_res = buffer.read(elf1);
         const uint32 elf2_res = buffer.read(elf2);
@@ -51,14 +45,37 @@ namespace Y18 {
 
         elf1 += elf1_res + 1;
         elf2 += elf2_res + 1;
-      }
 
+        if (!found) {
+          const uint32 count = buffer.size();
+          const uint32 comp_size = comp.size();
+          const uint32 comp_m_one = comp_size - 1;
+          int32 to = count - 1 - comp_size;
+          to = to < 0 ? 0 : to;
+
+          for (int32 i = count - 1; i >= to; --i) {
+            if (buffer[i] == comp[comp_m_one]) {
+              found = true;
+              for (int32 j = comp_m_one; j >= 0; --j) {
+                if (buffer[i - (comp_m_one - j)] != comp[j]) {
+                  found = false;
+                  break;
+                }
+              }
+              if (found) {
+                LOG("Second part: %d", i - comp_size + 1);
+              }
+            }
+          }
+        }
+      }  
+
+      PRINT("First part: ");
       const uint32 buffer_len = buffer.size();
-      for (uint32 i = INPUT; i < INPUT + 10; ++i) {
-        printf("%d", buffer[i]);
+      for (uint32 i = input; i < limit; ++i) {
+        PRINT("%d", buffer[i]);
       }
     }
-
   }
 }
 

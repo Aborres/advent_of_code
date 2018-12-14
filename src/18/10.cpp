@@ -67,24 +67,24 @@ namespace Y18 {
         ++it;
       }
 
-      printf("(%d): %d\n\n", time, min_distance);
+      PRINT("(%d): %d\n\n", time, min_distance);
 
       for (int32 y = c_min.y; y <= c_max.y; ++y) {
         for (int32 x = c_min.x; x <= c_max.x; ++x) {
           bool found = false;
           for (uint32 i = 0; i < count; ++i) {
             if (result[i].pos == vec2i{x, y}) {
-              printf("#");
+              PRINT("#");
               found = true;
               break;
             }
           }
           if (!found)
-            printf(" ");
+            PRINT(" ");
         }
-        printf("\n");
+        PRINT("\n");
       }
-      printf("\n");
+      PRINT("\n");
     }
   }
 }

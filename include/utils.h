@@ -71,7 +71,9 @@ public:
 
     writeIT(pos);
 
-    memcpy(data_ + pos + 1, data_ + pos, sizeof(uint32) * (size - pos));
+    if ((uint32)pos < size)
+      memcpy(data_ + pos + 1, data_ + pos, sizeof(uint32) * (size - pos));
+
     data_[pos] = o;
     ++num_elem_;
 
@@ -91,6 +93,11 @@ public:
     memcpy(data_ + pos, data_ + pos + 1, sizeof(uint32) * (size() - pos));
     --num_elem_;
     return pos;
+  }
+
+  void clear() {
+    memset(data_, 0, size() * sizeof(uint32));
+    num_elem_ = 0;
   }
 
   uint32 size() const {
@@ -149,7 +156,9 @@ public:
     } else if (it < 0) {
       it = size + it;
     } else if (it > size) {
-      it = size;
+      while (it > size) {
+        it -= size;
+      }
     } 
   }
 
@@ -164,7 +173,9 @@ private:
 
 #define COUNT_ARR(B) (sizeof(B) / sizeof(B[0]))
 
-#define LOG(F, ...) printf(F"\n", __VA_ARGS__)
+#define PRINT(F, ...) printf(F, __VA_ARGS__)
+
+#define LOG(F, ...) PRINT(F"\n", __VA_ARGS__)
 
 #define ASSERT(C, ...) assert(C && __VA_ARGS__)
 

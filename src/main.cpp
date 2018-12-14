@@ -15,13 +15,14 @@
 #include <18/12.h>
 #include <18/13.h>
 #include <18/14.h>
+#include <18/15.h>
 
 int main(int argc, char** argv) {
 
   UNUSED(argc);
   UNUSED(argv);
 
-  Y18::D14::puzzle();
+  Y18::D15::puzzle();
 
   return 0;
 }
