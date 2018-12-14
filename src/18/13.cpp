@@ -253,7 +253,7 @@ namespace Y18 {
 
         if (remove_pool.size() > 0) {
           std::vector<Cart> temp;
-          const uint32 remove_count = remove_pool.size();
+          const uint32 remove_count = (uint32)remove_pool.size();
           for (uint32 c = 0; c < carts.size(); ++c) {
             bool found = false;
             for (uint32 r = 0; r < remove_count; ++r) {
