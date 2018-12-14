@@ -37,7 +37,6 @@ namespace Y18 {
     static void ComputeGenerations(uint8* buff, uint8* next_gen,  uint32 buff_size,
                                    Mask* masks, uint32 count_masks,
                                    uint32 num_generations, uint32 padding, uint32* avg) {
-      
       uint64 prev = 0;
 
       for (uint64 i = 0; i < num_generations; ++i) {

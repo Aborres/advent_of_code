@@ -36,142 +36,59 @@ namespace Y18 {
     
     struct Cart {
       vec2i pos;
-      Change::Enum last_change;
+      Change::Enum change;
       Direction::Enum direction;
+
+      Cart(const vec2i& v, Direction::Enum d) : pos(v), change(Change::Left),
+                                                direction(d) {}
+      ~Cart(){};
     };
 
     static INLINE uint32 IT(uint32 x, uint32 y, uint32 w) {
       return x + (y * w);
     }
 
-    static void ComputeLastChange(Cart* c) {
-      if (c->last_change != Change::Straight) {
-        if (c->last_change == Change::Right) {
-          switch (c->direction) {
-            case Direction::Right: {
-              c->direction = Direction::Down;
-              break;
-            }
-            case Direction::Left: {
-              c->direction = Direction::Up;
-              break;
-            }
-            case Direction::Up: {
-              c->direction = Direction::Right;
-              break;
-            }
-            case Direction::Down: {
-              c->direction = Direction::Left;
-              break;
-            }
-            default: {
-              LOG("UNDEFINED DIRECTION");
-            }
-          }
-        } else if (c->last_change == Change::Left) {
-          switch (c->direction) {
-            case Direction::Right: {
-              c->direction = Direction::Up;
-              break;
-            }
-            case Direction::Left: {
-              c->direction = Direction::Down;
-              break;
-            }
-            case Direction::Up: {
-              c->direction = Direction::Left;
-              break;
-            }
-            case Direction::Down: {
-              c->direction = Direction::Right;
-              break;
-            }
-            default: {
-              LOG("UNDEFINED DIRECTION");
-            }
-          }
-        }
-      }
+    static const Direction::Enum changes[3][4] = {
+      { Direction::Up,    Direction::Down, Direction::Left,  Direction::Right, },
+      { Direction::Right, Direction::Left, Direction::Up,    Direction::Down,  },
+      { Direction::Down,  Direction::Up,   Direction::Right, Direction::Left,  },
+    };
 
-      uint32 lc = (uint32)(c->last_change);
+    static void ComputeLastChange(Cart* c) {
+
+      c->direction = changes[c->change][c->direction];
+
+      uint32 lc = (uint32)(c->change);
       ++lc;
       lc %= (uint32)Change::Count;
-      c->last_change = (Change::Enum)lc;
+      c->change = (Change::Enum)lc;
     }
 
-    static void ComputeRight(char* buff, Cart* c, uint32 w) {
-      c->pos.x += 1;
+    static void ComputeDirection(char* buff, Cart* c, uint32 w, Direction::Enum l, Direction::Enum r) {
       const uint32 it = IT(c->pos.x, c->pos.y, w);
       const char next_pos = buff[it];
       if (next_pos == '+') {
         ComputeLastChange(c);
       } else if (next_pos == '\\') {
-        c->direction = Direction::Down;
+        c->direction = l;
       } else if (next_pos == '/') {
-        c->direction = Direction::Up;
-      } 
-    }
-
-    static void ComputeLeft(char* buff, Cart* c, uint32 w) {
-      c->pos.x -= 1;
-      const uint32 it = IT(c->pos.x, c->pos.y, w);
-      const char next_pos = buff[it];
-      if (next_pos == '+') {
-        ComputeLastChange(c);
-      } else if (next_pos == '\\') {
-        c->direction = Direction::Up;
-      } else if (next_pos == '/') {
-        c->direction = Direction::Down;
-      } 
-    }
-
-    static void ComputeUp(char* buff, Cart* c, uint32 w) {
-      c->pos.y -= 1;
-      const uint32 it = IT(c->pos.x, c->pos.y, w);
-      const char next_pos = buff[it];
-      if (next_pos == '+') {
-        ComputeLastChange(c);
-      } else if (next_pos == '\\') {
-        c->direction = Direction::Left;
-      } else if (next_pos == '/') {
-        c->direction = Direction::Right;
-      } 
-    }
-
-    static void ComputeDown(char* buff, Cart* c, uint32 w) {
-      c->pos.y += 1;
-      const uint32 it = IT(c->pos.x, c->pos.y, w);
-      const char next_pos = buff[it];
-      if (next_pos == '+') {
-        ComputeLastChange(c);
-      } else if (next_pos == '\\') {
-        c->direction = Direction::Right;
-      } else if (next_pos == '/') {
-        c->direction = Direction::Left;
+        c->direction = r;
       } 
     }
 
     static void ComputeDirection(char* buff, Cart* c, uint32 w) {
-      switch (c->direction) {
-        case Direction::Right: {
-          ComputeRight(buff, c, w);
-          break;
-        }
-        case Direction::Left: {
-          ComputeLeft(buff, c, w);
-          break;
-        }
-        case Direction::Up: {
-          ComputeUp(buff, c, w);
-          break;
-        }
-        case Direction::Down: {
-          ComputeDown(buff, c, w);
-          break;
-        }
-        default: {
-          LOG("UNDEFINED DIRECTION");
-        }
+      if (c->direction == Direction::Right) {
+        c->pos.x += 1;
+        ComputeDirection(buff, c, w, Direction::Down, Direction::Up);
+      } else if (c->direction == Direction::Left) {
+        c->pos.x -= 1;
+        ComputeDirection(buff, c, w, Direction::Up, Direction::Down);
+      } else if (c->direction == Direction::Up) {
+        c->pos.y -= 1;
+        ComputeDirection(buff, c, w, Direction::Left, Direction::Right);
+      } else if (c->direction == Direction::Down) {
+        c->pos.y += 1;
+        ComputeDirection(buff, c, w, Direction::Right, Direction::Left);
       }
     }
 
@@ -181,8 +98,6 @@ namespace Y18 {
 
       if (!ReadInput("assets/input/18/13_input.txt", &buff))
         ASSERT(false, "invalid path to read");
-
-      const uint32 count = (uint32)strlen(buff);
 
       uint32 w = 0;
       {
@@ -195,7 +110,8 @@ namespace Y18 {
           ++it;
         }
       }
-      
+
+      const uint32 count = (uint32)strlen(buff);
       const uint32 h = count / w;
 
       std::vector<Cart> carts;
@@ -203,76 +119,65 @@ namespace Y18 {
       for (int32 y = 0; y < (int32)h; ++y) {
         for (int32 x = 0; x < (int32)w; ++x) {
           const uint32 it = IT(x, y, w);
-          if (buff[it] == 'v') {
-            Cart c;
-            c.pos = { x, y };
-            c.direction = Direction::Down;
-            c.last_change = Change::Left;
-            carts.push_back(c);
-          } else if (buff[it] == '^') {
-            Cart c;
-            c.pos = { x, y };
-            c.direction = Direction::Up;
-            c.last_change = Change::Left;
-            carts.push_back(c);
-          } else if (buff[it] == '>') {
-            Cart c;
-            c.pos = { x, y };
-            c.direction = Direction::Right;
-            c.last_change = Change::Left;
-            carts.push_back(c);
-          } else if (buff[it] == '<') {
-            Cart c;
-            c.pos = { x, y };
-            c.direction = Direction::Left;
-            c.last_change = Change::Left;
-            carts.push_back(c);
+          const char c = buff[it];
+          if (c == 'v') {
+            carts.push_back(Cart({x, y}, Direction::Down));
+          } else if (c == '^') {
+            carts.push_back(Cart({x, y}, Direction::Up));
+          } else if (c == '>') {
+            carts.push_back(Cart({x, y}, Direction::Right));
+          } else if (c == '<') {
+            carts.push_back(Cart({x, y}, Direction::Left));
           }
         }
       }
 
       std::vector<uint32> remove_pool;
-      while (true) {
+      std::vector<Cart> temp_pool;
 
-        for (uint32 i = 0; i < carts.size(); ++i) {
-          Cart* c = &carts[i];
-          ComputeDirection(buff, c, w);
-        }
+      bool is_first_collision = true;
 
-        for (uint32 i = 0; i < carts.size(); ++i) {
-          const Cart& a = carts[i];
-          for (uint32 j = 0; j < carts.size(); ++j) {
-            if (j != i) {
-              const Cart& b = carts[j];
-              if (a.pos == b.pos) {
-                remove_pool.push_back(i);
+      for (;;) {
+
+        const uint32 carts_size = (uint32)carts.size();
+        for (uint32 i = 0; i < carts_size; ++i) {
+
+          if (std::find(remove_pool.begin(), remove_pool.end(), i) == remove_pool.end()) {
+
+            ComputeDirection(buff, &carts[i], w);
+
+            //Check collisions
+            for (uint32 j = 0; j < carts_size; ++j) {
+              if (j != i) {
+                if (carts[i].pos == carts[j].pos) {
+                  if (is_first_collision) {
+                    is_first_collision = false;
+                    LOG("First collision happened at: %d,%d",
+                        carts[i].pos.x, carts[i].pos.y);
+                  }
+                  remove_pool.push_back(i);
+                  remove_pool.push_back(j);
+                  break;
+                }
               }
             }
           }
         }
 
-        if (remove_pool.size() > 0) {
-          std::vector<Cart> temp;
-          const uint32 remove_count = (uint32)remove_pool.size();
-          for (uint32 c = 0; c < carts.size(); ++c) {
-            bool found = false;
-            for (uint32 r = 0; r < remove_count; ++r) {
-              if (c == remove_pool[r]) {
-                found = true;
-                break;
-              }
-            }
-            if (!found)
-              temp.push_back(carts[c]);
+        const uint32 remove_count = (uint32)remove_pool.size();
+        if (remove_count > 0) {
+          for (uint32 c = 0; c < carts_size; ++c) {
+            if (std::find(remove_pool.begin(), remove_pool.end(), c) == remove_pool.end()) 
+              temp_pool.push_back(carts[c]);
           }
           carts.clear();
-          carts.assign(temp.begin(), temp.end());
+          carts.assign(temp_pool.begin(), temp_pool.end());
           remove_pool.clear();
+          temp_pool.clear();
         }
 
         if (carts.size() == 1) {
-          const vec2i& c = carts[0].pos;
-          LOG("%d, %d", c.x, c.y);
+          break;
         }
 
         std::sort(carts.begin(), carts.end(), [](const Cart& l, const Cart& r) {
@@ -280,9 +185,10 @@ namespace Y18 {
         });
       }
 
+      LOG("The last cart is at: %d,%d", carts[0].pos.x, carts[0].pos.y);
+
       delete buff;
     }
-
   }
 }
 

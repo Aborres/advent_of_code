@@ -42,7 +42,7 @@ namespace Y18 {
           curr_pos -= 7;
 
           player_scores[curr_player] += buffer[curr_pos];
-          buffer.remove(curr_pos);
+          curr_pos = buffer.remove(curr_pos);
 
         } else {
           curr_pos = buffer.insert(curr_pos + 2, i);

@@ -52,15 +52,16 @@ typedef vec3<int32> vec3i;
 
 class RingBuffer {
 public:
-  RingBuffer(uint32 r) : data(nullptr), buff_size(0), num_elem(0), reserve_size(r)  {
-    buff_size = reserve_size;
-    num_elem = 0;
-    data = new uint32[buff_size];
-    memset(data, 0, buff_size * sizeof(uint32));
+  RingBuffer(uint32 r = 128) : data_(nullptr), buff_size_(0),
+                               num_elem_(0), reserve_size_(r)  {
+    buff_size_ = reserve_size_;
+    num_elem_ = 0;
+    data_ = new uint32[buff_size_];
+    memset(data_, 0, buff_size_ * sizeof(uint32));
   }
 
   ~RingBuffer() {
-    delete[] data;
+    delete[] data_;
   }
 
   uint32 insert(int32 pos, uint32 o) {
@@ -68,61 +69,95 @@ public:
 
     checkResize(size + 1);
 
-    fixIT(pos);
+    writeIT(pos);
 
-    memcpy(data + pos + 1, data + pos, sizeof(uint32) * (size - pos));
-    data[pos] = o;
-    ++num_elem;
+    memcpy(data_ + pos + 1, data_ + pos, sizeof(uint32) * (size - pos));
+    data_[pos] = o;
+    ++num_elem_;
 
     return pos;
   }
+  
+  uint32 insertFront(uint32 o) {
+    return insert(0, o);
+  }
 
-  void remove(int32& pos) {
-    fixIT(pos);
-    memcpy(data + pos, data + pos + 1, sizeof(uint32) * (size() - pos));
-    --num_elem;
+  uint32 insertEnd(uint32 o) {
+    return insert(size(), o);
+  }
+
+  uint32 remove(int32 pos) {
+    readIT(pos);
+    memcpy(data_ + pos, data_ + pos + 1, sizeof(uint32) * (size() - pos));
+    --num_elem_;
+    return pos;
   }
 
   uint32 size() const {
-    return num_elem;
+    return num_elem_;
   }
 
   uint32 buffSize() const {
-    return buff_size;
+    return buff_size_;
   }
 
   void checkResize(uint32 new_size) {
     if (new_size > buffSize()) {
 
-      buff_size = new_size + reserve_size;
+      buff_size_ = new_size + reserve_size_;
 
-      uint32* tmp = new uint32[buff_size];
-      memcpy(tmp, data, sizeof(uint32) * size());
+      uint32* tmp = new uint32[buff_size_];
+      memcpy(tmp, data_, sizeof(uint32) * size());
 
-      delete[] data;
-      data = tmp;
+      delete[] data_;
+      data_ = tmp;
     }
   }
 
   uint32& operator[](int32 it) {
-    fixIT(it);
-    return data[it];
+    readIT(it);
+    return data_[it];
   }
 
-  void fixIT(int32& it) {
+  const uint32& operator[](int32 it) const {
+    readIT(it);
+    return data_[it];
+  }
+
+  uint32 read(int32& it) const {
+    readIT(it);
+    return data_[it];
+  }
+
+  void readIT(int32& it) const {
     const int32 size = (int32)this->size();
-    if (it < 0) {
+    if (size == 0) {
+      it = 0;
+    } else if (it < 0) {
+      it = size + it;
+    } else if (it >= size) {
+      while (it >= size) {
+        it -= size;
+      }
+    } 
+  }
+
+  void writeIT(int32& it) const {
+    const int32 size = (int32)this->size();
+    if (size == 0) {
+      it = 0;
+    } else if (it < 0) {
       it = size + it;
     } else if (it > size) {
-      it -= size;
+      it = size;
     } 
   }
 
 private:
-  uint32* data;
-  uint32 buff_size;
-  uint32 num_elem;
-  uint32 reserve_size;
+  uint32* data_;
+  uint32 buff_size_;
+  uint32 num_elem_;
+  uint32 reserve_size_;
 };
 
 #define UNUSED(O) (void)O
