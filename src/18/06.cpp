@@ -9,10 +9,6 @@
 namespace Y18 {
   namespace D6 {
 
-    static uint32 Manhattan(const vec2i& a, const vec2i& b) {
-      return std::abs(a.x - b.x) + std::abs(a.y - b.y);
-    }
-
     void puzzle() {
       
       const int32 big_n = std::numeric_limits<int32>::max();

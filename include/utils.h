@@ -9,6 +9,8 @@
 
 #include <string.h>
 
+#include <algorithm>
+
 typedef int8_t  int8;
 typedef int16_t int16;
 typedef int32_t int32;
@@ -199,4 +201,7 @@ INLINE bool ReadInput(const char* path, char** out) {
   return false;
 }
 
+INLINE uint32 Manhattan(const vec2i& a, const vec2i& b) {
+  return std::abs(a.x - b.x) + std::abs(a.y - b.y);
+}
 #endif //ADVENT_OF_CODE_UTILS
